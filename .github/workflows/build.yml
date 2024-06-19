@@ -94,7 +94,7 @@ jobs:
           registry: oaftech.azurecr.io
           username: ${{ vars.ACR_PULL_USERNAME }}
           password: ${{ secrets.ACR_PULL_PASSWORD }}
-      - run: |
+        run: |
           docker push oaftech.azurecr.io/oneacrefund/message-gateway:${{ env.IMAGE_TAGS }}      
         
       - name: Publish configuration package
