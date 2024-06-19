@@ -89,10 +89,6 @@ jobs:
       
       - name: Push image to registry
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/')
-        with:
-          registry: oaftech.azurecr.io
-          username: ${{ vars.ACR_PULL_USERNAME }}
-          password: ${{ secrets.ACR_PULL_PASSWORD }}
         run: |
           docker push oaftech.azurecr.io/oneacrefund/message-gateway:${{ env.IMAGE_TAGS }}      
         
