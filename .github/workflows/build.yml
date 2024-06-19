@@ -67,6 +67,12 @@ jobs:
         run: |
           ./gradlew :test --info --build-cache
 
+
+      - name: Build  docker-compose
+        run: |
+          MESSAGE_GATEWAY_IMAGE_TAGS=${{ env.IMAGE_TAGS }} docker compose -f docker-compose.yml build
+
+
       - name: Publish Code Coverage Results
         uses: actions/upload-artifact@v2
         with:

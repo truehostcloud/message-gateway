@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+
+  message-gateway:
+    build:
+      context: .
+    image: oaftech.azurecr.io/oneacrefund/message-gateway:${MESSAGE_GATEWAY_IMAGE_TAGS}
+    ports:
+      - 9191:9191
+    environment:
+      - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_DATASOURCE_URL=jdbc:mysql:thin://operationsmysql:3306/messagegateway
+      - CALLBACKCONFIG_HOST=
+      - HOSTCONFIG_HOST=
+      - MYSQL_PASSWORD=
+      - MYSQL_USERNAME=
+      - PROVIDERKEYS_TELERIVETAPIKEY=
+      - PROVIDERKEYS_TELERIVETPROJECTID=
+      - PROVIDERSOURCE_FROMDATABASE=disabled
+      - PROVIDERSOURCE_FROMYML=enabled
