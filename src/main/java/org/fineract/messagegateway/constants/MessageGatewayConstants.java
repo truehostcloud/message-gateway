@@ -30,6 +30,8 @@ public interface MessageGatewayConstants {
 	String PROVIDER_AUTH_TOKEN = "Provider_Auth_Token" ;
 	
 	String PROVIDER_URL = "Provider_Url";
+	String PROVIDER_AUTH_TYPE = "Provider_Auth_Type";
+	String PROVIDER_AUTH_CUSTOM_PREFIX = "Provider_Auth_Custom_Prefix";
 
 	String SENDER_NAME = "Sender_Name";
 

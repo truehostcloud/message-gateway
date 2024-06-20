@@ -22,3 +22,5 @@ repos/
 smsmoduledb.*
 
 !gradle/wrapper/gradle-wrapper.jar
+/megalinter-reports/
+report

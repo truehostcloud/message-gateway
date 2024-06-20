@@ -21,10 +21,13 @@ package org.fineract.messagegateway.sms.providers.impl.infobip;
 import java.util.Collections;
 import java.util.HashMap;
 
+import infobip.api.config.ApiKeyAuthConfiguration;
+import infobip.api.config.Configuration;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
+import org.fineract.messagegateway.sms.util.AuthorizationType;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
 import org.slf4j.Logger;
@@ -39,6 +42,7 @@ import infobip.api.model.sms.mt.send.Message;
 import infobip.api.model.sms.mt.send.SMSResponse;
 import infobip.api.model.sms.mt.send.SMSResponseDetails;
 import infobip.api.model.sms.mt.send.textual.SMSAdvancedTextualRequest;
+import org.springframework.util.StringUtils;
 
 @Service(value = "InfoBip")
 public class InfoBipMessageProvider extends SMSProvider {
@@ -53,7 +57,7 @@ public class InfoBipMessageProvider extends SMSProvider {
 	@Autowired
 	public InfoBipMessageProvider(final HostConfig hostConfig) {
 		callBackUrl = String.format("%s://%s:%d/infobip/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
-    	logger.info("Registering call back to InfoBip:"+callBackUrl);
+    	logger.info("Registering call back to InfoBip: {}", callBackUrl);
     	builder = new StringBuilder() ;
 	}
 
@@ -67,7 +71,7 @@ public class InfoBipMessageProvider extends SMSProvider {
         builder.append(smsBridgeConfig.getCountryCode()) ;
         builder.append(message.getMobileNumber()) ;
         String mobile = builder.toString() ;
-        logger.info("Sending SMS to " + mobile + " ...");
+        logger.info("Sending SMS to {} ...", mobile);
 		destination.setTo(mobile);
 		Message infoBipMessage = new Message();
 		infoBipMessage.setDestinations(Collections.singletonList(destination));
@@ -103,9 +107,28 @@ public class InfoBipMessageProvider extends SMSProvider {
 	 
 	SendMultipleTextualSmsAdvanced get(final SMSBridge smsBridgeConfig) {
     	logger.debug("Creating a new InfoBip Client ....");
-    	String userName = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
-    	String password = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
-    	final SendMultipleTextualSmsAdvanced client = new SendMultipleTextualSmsAdvanced(new BasicAuthConfiguration(userName, password));
-        return client;
+		String baseURL = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_URL);
+		String providerAuthType = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TYPE);
+		String password = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
+
+		AuthorizationType authType = (StringUtils.hasText(providerAuthType ))? AuthorizationType.valueOf(providerAuthType.toUpperCase()) : AuthorizationType.BASIC;
+
+		Configuration configuration;
+
+		switch (authType) {
+			case API:
+				configuration = StringUtils.hasText(baseURL) ? new ApiKeyAuthConfiguration(baseURL, password):  new ApiKeyAuthConfiguration(password);
+				break;
+			case CUSTOM:
+				String customPrefix = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_CUSTOM_PREFIX);
+				configuration = StringUtils.hasText(baseURL) ? new CustomPrefixAuthConfiguration(baseURL, password, customPrefix): new CustomPrefixAuthConfiguration(password, customPrefix);
+				break;
+			default:
+				String userName = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
+				configuration = StringUtils.hasText(baseURL) ? new BasicAuthConfiguration(baseURL, userName, password):  new BasicAuthConfiguration(userName, password);
+				break;
+		}
+
+		return new SendMultipleTextualSmsAdvanced(configuration);
     }
 }
