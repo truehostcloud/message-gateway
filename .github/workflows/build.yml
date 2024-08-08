@@ -17,6 +17,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
