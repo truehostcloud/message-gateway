@@ -29,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,33 +36,25 @@ import org.springframework.web.bind.annotation.RestController;
 public class RapidProSMSApiResource {
 
   private static final Logger logger = LoggerFactory.getLogger(
-    RapidProSMSApiResource.class
-  );
+      RapidProSMSApiResource.class);
 
   private final SmsOutboundMessageRepository smsOutboundMessageRepository;
 
   @Autowired
   public RapidProSMSApiResource(
-    final SmsOutboundMessageRepository smsOutboundMessageRepository
-  ) {
+      final SmsOutboundMessageRepository smsOutboundMessageRepository) {
     this.smsOutboundMessageRepository = smsOutboundMessageRepository;
   }
 
-  @RequestMapping(
-    value = "/report/{messageId}",
-    method = RequestMethod.GET,
-    consumes = { "application/json" },
-    produces = { "application/json" }
-  )
+  @RequestMapping(value = "/report/{messageId}", method = RequestMethod.GET, consumes = {
+      "application/json" }, produces = { "application/json" })
   public ResponseEntity<Void> updateDeliveryStatus(
-    @PathVariable("messageId") final Long messageId
-  ) {
+      @PathVariable("messageId") final Long messageId) {
     SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get();
     if (message != null) {
       logger.info(
-        "Status Callback received from RapidProSMS for " +
-        messageId
-      );
+          "Status Callback received from RapidProSMS for " +
+              messageId);
       this.smsOutboundMessageRepository.save(message);
     } else {
       logger.info("Message with Message id " + messageId + " Not found");

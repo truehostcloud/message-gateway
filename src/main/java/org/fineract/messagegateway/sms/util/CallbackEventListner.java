@@ -9,22 +9,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collection;
+
 @Component
 public class CallbackEventListner implements ApplicationListener<CallbackEvent> {
 
     @Value("${callbackconfig.host}")
-    private String address ;
+    private String address;
 
     @Value("${callbackconfig.protocol}")
-    private String protocol ;
+    private String protocol;
 
     @Value("${callbackconfig.port}")
-    private int port ;
+    private int port;
 
     private static final Logger logger = LoggerFactory.getLogger(CallbackEventListner.class);
 
@@ -47,21 +47,21 @@ public class CallbackEventListner implements ApplicationListener<CallbackEvent> 
         Response response = client.newCall(request).execute();
         return response.body().string();
     }
+
     @Override
     public void onApplicationEvent(CallbackEvent event) {
         logger.info("From application event method in callback listener");
         SMSMessage message = event.getMessage();
-        logger.info("Back to listener from event with message ="+ message);
-        Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryCallbackStatus
-                (message.getExternalId());
-        String json = new Gson().toJson( deliveryStatus);
-        String url=(String.format("%s://%s:%d/sms/callback/", protocol, address, port));
+        logger.info("Back to listener from event with message =" + message);
+        Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService
+                .getDeliveryCallbackStatus(message.getExternalId());
+        String json = new Gson().toJson(deliveryStatus);
+        String url = (String.format("%s://%s:%d/sms/callback/", protocol, address, port));
         try {
-            post(url,json);
+            post(url, json);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        logger.debug("From application event "+ url + " " + json);
+        logger.debug("From application event " + url + " " + json);
     }
 }
-

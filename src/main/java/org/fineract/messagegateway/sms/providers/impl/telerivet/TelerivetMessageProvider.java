@@ -19,7 +19,6 @@
 package org.fineract.messagegateway.sms.providers.impl.telerivet;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.telerivet.*;
-
 
 @Service(value = "telerivet")
 @Component
@@ -59,8 +57,6 @@ public class TelerivetMessageProvider extends SMSProvider {
     @Autowired
     private SmsOutboundMessageRepository smsOutboundMessageRepository;
 
-
-
     @Autowired
     public TelerivetMessageProvider(final HostConfig hostConfig) {
         callBackUrl = String.format("%s://%s/telerivet/report/", hostConfig.getProtocol(), hostConfig.getHostName());
@@ -71,14 +67,13 @@ public class TelerivetMessageProvider extends SMSProvider {
     public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
         String providerAPIKey = null;
         String providerProjectId = null;
-        if(ymlCheck.equals("enabled")){
-           logger.info("Yml values are enables so attaching provider related values from yml");
-           providerAPIKey = apiKey;
-           providerProjectId = projectId;
-        }
-        else{
-          providerAPIKey = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
-          providerProjectId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
+        if (ymlCheck.equals("enabled")) {
+            logger.info("Yml values are enables so attaching provider related values from yml");
+            providerAPIKey = apiKey;
+            providerProjectId = projectId;
+        } else {
+            providerAPIKey = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
+            providerProjectId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
         }
 
         String statusURL = callBackUrl;
@@ -86,7 +81,7 @@ public class TelerivetMessageProvider extends SMSProvider {
         String messageToSend = message.getMessage();
         try {
             TelerivetAPI tr = new TelerivetAPI(providerAPIKey);
-           Project project = tr.initProjectById(providerProjectId);
+            Project project = tr.initProjectById(providerProjectId);
             logger.info("Sending SMS to " + mobileNumber + " ...");
             Message sent_msg = project.sendMessage(Util.options(
                     "content", messageToSend,
@@ -99,10 +94,12 @@ public class TelerivetMessageProvider extends SMSProvider {
 
             if (message.getDeliveryStatus().equals(SmsMessageStatusType.FAILED.getValue())) {
                 message.setDeliveryErrorMessage(sent_msg.getErrorMessage());
-                logger.error("Sending SMS to :" + message.getMobileNumber() + " failed with reason " + sent_msg.getErrorMessage());
+                logger.error("Sending SMS to :" + message.getMobileNumber() + " failed with reason "
+                        + sent_msg.getErrorMessage());
             }
         } catch (IOException e) {
-            logger.error("ApiException while sending message to :" + message.getMobileNumber() + " with reason " + e.getMessage());
+            logger.error("ApiException while sending message to :" + message.getMobileNumber() + " with reason "
+                    + e.getMessage());
             message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
             message.setDeliveryErrorMessage(e.getMessage());
         }
@@ -115,12 +112,11 @@ public class TelerivetMessageProvider extends SMSProvider {
             logger.info("Fetching message status by id");
             String providerAPIKey = null;
             String providerProjectId = null;
-            if(ymlCheck.equals("enabled")){
+            if (ymlCheck.equals("enabled")) {
                 logger.info("Yml values are enables so attaching provider related values from yml");
                 providerAPIKey = apiKey;
                 providerProjectId = projectId;
-            }
-            else{
+            } else {
                 providerAPIKey = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
                 providerProjectId = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
             }
@@ -131,7 +127,7 @@ public class TelerivetMessageProvider extends SMSProvider {
             msg = project.getMessageById(externalId);
             message.setDeliveryStatus(TelerivetStatus.smsStatus(msg.getStatus()).getValue());
             message.setDeliveryErrorMessage(msg.getErrorMessage());
-            this.smsOutboundMessageRepository.save(message) ;
+            this.smsOutboundMessageRepository.save(message);
             logger.debug("Value updated");
 
         } catch (IOException e) {

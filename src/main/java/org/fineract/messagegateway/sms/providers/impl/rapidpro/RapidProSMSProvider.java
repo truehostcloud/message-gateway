@@ -40,24 +40,19 @@ import org.springframework.stereotype.Service;
 public class RapidProSMSProvider extends SMSProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(
-            RapidProSMSProvider.class
-    );
+            RapidProSMSProvider.class);
 
     private HashMap<String, OkHttpClient> restClients = new HashMap<>();
-
-    private static final String SCHEME = "https";
 
     private final String callBackUrl;
 
     @Autowired
     public RapidProSMSProvider(final HostConfig hostConfig) {
-        callBackUrl =
-                String.format(
-                        "%s://%s:%d/rapidprosms/report/",
-                        hostConfig.getProtocol(),
-                        hostConfig.getHostName(),
-                        hostConfig.getPort()
-                );
+        callBackUrl = String.format(
+                "%s://%s:%d/rapidprosms/report/",
+                hostConfig.getProtocol(),
+                hostConfig.getHostName(),
+                hostConfig.getPort());
         logger.info("Registering call back to rapidprosms:" + callBackUrl);
     }
 
@@ -67,19 +62,17 @@ public class RapidProSMSProvider extends SMSProvider {
         logger.info("Reached RapidPro Provider...");
         OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
         String url = smsBridgeConfig.getConfigValue(
-                MessageGatewayConstants.PROVIDER_URL
-        ) + "/broadcasts.json";
+                MessageGatewayConstants.PROVIDER_URL) + "/broadcasts.json";
         String providerAuthToken = smsBridgeConfig.getConfigValue(
-                MessageGatewayConstants.PROVIDER_AUTH_TOKEN
-        );
+                MessageGatewayConstants.PROVIDER_AUTH_TOKEN);
         logger.info("URL.....{}", url);
         try {
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(
                     mediaType,
-                    "{\"urns\": [\"tel:" + message.getMobileNumber() + "\"],\"contacts\": [],\"text\": \"" + message.getMessage() + "\"}"
-            );
+                    "{\"urns\": [\"tel:" + message.getMobileNumber() + "\"],\"contacts\": [],\"text\": \""
+                            + message.getMessage() + "\"}");
             Request request = new Request.Builder()
                     .url(url)
                     .method("POST", body)
@@ -87,7 +80,7 @@ public class RapidProSMSProvider extends SMSProvider {
                     .addHeader("Content-Type", "application/json")
                     .build();
             Response response = client.newCall(request).execute();
-            String responseBody =response.body().string();
+            String responseBody = response.body().string();
             logger.info(responseBody);
             message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
             message.setDeliveredOnDate(new Date());
