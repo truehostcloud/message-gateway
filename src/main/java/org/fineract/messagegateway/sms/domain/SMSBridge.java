@@ -89,11 +89,6 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerDescription = providerDescription;
 	}
 
-	@JsonProperty("value")
-	public String getValue() {
-		return providerName + " - " + phoneNo;
-	}
-
 	public void setTenantId(final Long tenantId) {
 		this.tenantId = tenantId;
 	}
