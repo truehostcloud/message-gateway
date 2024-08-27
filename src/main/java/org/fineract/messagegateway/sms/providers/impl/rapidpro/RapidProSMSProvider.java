@@ -60,7 +60,6 @@ public class RapidProSMSProvider extends SMSProvider {
     public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message)
             throws MessageGatewayException {
         logger.info("Reached RapidPro Provider...");
-        OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
         String url = smsBridgeConfig.getConfigValue(
                 MessageGatewayConstants.PROVIDER_URL) + "/broadcasts.json";
         String providerAuthToken = smsBridgeConfig.getConfigValue(
@@ -93,16 +92,6 @@ public class RapidProSMSProvider extends SMSProvider {
     @Override
     public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
 
-    }
-
-    private OkHttpClient getRestClient(final SMSBridge smsBridge) {
-        String authorizationKey = encodeBase64(smsBridge);
-        OkHttpClient client = this.restClients.get(authorizationKey);
-        if (client == null) {
-            client = this.get(smsBridge);
-            this.restClients.put(authorizationKey, client);
-        }
-        return client;
     }
 
     OkHttpClient get(final SMSBridge smsBridgeConfig) {
