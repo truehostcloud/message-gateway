@@ -60,7 +60,6 @@ public class RapidProSMSProvider extends SMSProvider {
     public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message)
             throws MessageGatewayException {
         logger.info("Reached RapidPro Provider...");
-        OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
         String url = smsBridgeConfig.getConfigValue(
                 MessageGatewayConstants.PROVIDER_URL) + "/broadcasts.json";
         String providerAuthToken = smsBridgeConfig.getConfigValue(
