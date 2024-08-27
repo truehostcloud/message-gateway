@@ -73,12 +73,10 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	private String value;
 
 	public SMSBridge() {
-		this.value = getProviderNameAndPhoneNo();
 	}
 
 	public SMSBridge(final Long tenantId) {
 		this.tenantId = tenantId;
-		this.value = getProviderNameAndPhoneNo();
 	}
 
 	public String getProviderNameAndPhoneNo() {
