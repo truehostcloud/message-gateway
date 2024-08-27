@@ -34,7 +34,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name="m_sms_bridge")
+@Table(name = "m_sms_bridge")
 @Component
 public class SMSBridge extends AbstractPersistableCustom<Long> {
 
@@ -46,138 +46,157 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "provider_name", nullable = false)
 	private String providerName;
-	
+
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	@Column(name = "country_code", nullable = false)
-	private String countryCode ; 
-	
+	private String countryCode;
+
 	@Column(name = "description", nullable = false)
 	private String providerDescription;
-	
+
 	@Column(name = "created_on", nullable = true)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdOnDate;
-	
+
 	@Column(name = "last_modified_on", nullable = true)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modifiedOnDate;
-	
+
 	@com.fasterxml.jackson.annotation.JsonIgnore
-	@Column(name = "provider_key", nullable = true) //This key is useful to load the actual implementation 
-	private String providerKey ; 
-	
+	@Column(name = "provider_key", nullable = true) // This key is useful to load the actual implementation
+	private String providerKey;
+
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bridge", orphanRemoval = true, fetch = FetchType.EAGER)
 	public Collection<SMSBridgeConfig> bridgeConfigurations = new ArrayList<>();
 
+	private String value;
+
 	public SMSBridge() {
-		
+		this.value = getProviderNameAndPhoneNo();
 	}
-	
+
 	public SMSBridge(final Long tenantId) {
-		this.tenantId = tenantId ;
+		this.tenantId = tenantId;
+		this.value = getProviderNameAndPhoneNo();
 	}
-	
-	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey, final String countryCode, final String providerDescription) {
-		this.tenantId = tenantId ;
-		this.phoneNo = phoneNo ;
-		this.providerName = providerName ;
-		this.providerKey = providerKey ;
-		this.countryCode = countryCode ;
-		this.providerDescription = providerDescription ;
+
+	public String getProviderNameAndPhoneNo() {
+		return this.providerName + ":" + this.phoneNo;
 	}
-	
+
+	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey,
+			final String countryCode, final String providerDescription) {
+		this.tenantId = tenantId;
+		this.phoneNo = phoneNo;
+		this.providerName = providerName;
+		this.providerKey = providerKey;
+		this.countryCode = countryCode;
+		this.providerDescription = providerDescription;
+		this.value = getProviderNameAndPhoneNo();
+	}
+
 	public void setTenantId(final Long tenantId) {
-		this.tenantId = tenantId ;
+		this.tenantId = tenantId;
 	}
-	
+
 	public Long getTenantId() {
 		return tenantId;
 	}
 
-	public void setPhoneNo(final String phoneNo) {
-		this.phoneNo = phoneNo ;
+	public void setValue(final String value) {
+		this.value = value;
 	}
-	
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setPhoneNo(final String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+
 	public String getPhoneNo() {
 		return phoneNo;
 	}
 
 	public void setProviderName(final String providerName) {
-		this.providerName = providerName ;
+		this.providerName = providerName;
 	}
-	
+
 	public String getProviderName() {
 		return providerName;
 	}
-	
+
 	public String getProviderKey() {
-		return this.providerKey ;
+		return this.providerKey;
 	}
-	
+
 	public String getCountryCode() {
-		return this.countryCode ;
+		return this.countryCode;
 	}
-	
+
 	public void setCountryCode(final String countryCode) {
-		this.countryCode = countryCode ;
+		this.countryCode = countryCode;
 	}
-	
+
 	public void setProviderDescription(final String providerDescription) {
-		this.providerDescription = providerDescription ;
+		this.providerDescription = providerDescription;
 	}
-	
+
 	public String getProviderDescription() {
-		return this.providerDescription ;
+		return this.providerDescription;
 	}
-	
+
 	public Collection<SMSBridgeConfig> getBridgeConfigurations() {
-		return this.bridgeConfigurations ;
+		return this.bridgeConfigurations;
 	}
-	
+
 	public String getConfigValue(final String configParamName) {
-		if(this.bridgeConfigurations == null || this.bridgeConfigurations.size() == 0) return null ;
-		String configValue = null ;
-		for(SMSBridgeConfig config: this.bridgeConfigurations) {
-			if(config.getConfigName().equals(configParamName)) {
-				configValue = config.getConfigValue() ;
+		if (this.bridgeConfigurations == null || this.bridgeConfigurations.size() == 0)
+			return null;
+		String configValue = null;
+		for (SMSBridgeConfig config : this.bridgeConfigurations) {
+			if (config.getConfigName().equals(configParamName)) {
+				configValue = config.getConfigValue();
 			}
 		}
-		return configValue ;
+		return configValue;
 	}
-	
+
 	public void setCreatedDate(final Date createdOnDate) {
-		this.createdOnDate = createdOnDate ;
+		this.createdOnDate = createdOnDate;
 	}
-	
+
 	public void setModifiedOnDate(final Date modifiedOnDate) {
-		this.modifiedOnDate = modifiedOnDate ;
+		this.modifiedOnDate = modifiedOnDate;
 	}
-	
+
 	public void setSMSBridgeToBridgeConfigs() {
-		if(this.bridgeConfigurations != null) {
-			for(SMSBridgeConfig config: this.bridgeConfigurations) {
-				config.setSMSBridge(this); 
+		if (this.bridgeConfigurations != null) {
+			for (SMSBridgeConfig config : this.bridgeConfigurations) {
+				config.setSMSBridge(this);
 			}
 		}
 	}
 
 	public void setSmsBridgeConfig(final Collection<SMSBridgeConfig> bridgeConfigurations) {
-		this.bridgeConfigurations.clear(); 
-		this.bridgeConfigurations = bridgeConfigurations ;
+		this.bridgeConfigurations.clear();
+		this.bridgeConfigurations = bridgeConfigurations;
 	}
+
 	public String generateApiKey() {
-		StringBuffer buff = new StringBuffer() ;
-		buff.append(tenantId) ;
-		buff.append(":") ;
-		buff.append(phoneNo) ;
-		buff.append(":") ;
-		buff.append(providerName) ;
-		buff.append(":") ;
-		SMSBridgeConfig config = this.bridgeConfigurations.iterator().next() ;
-		buff.append(config.getConfigName()) ;
-		buff.append(":") ;
-		buff.append(config.getConfigValue()) ;
+		StringBuffer buff = new StringBuffer();
+		buff.append(tenantId);
+		buff.append(":");
+		buff.append(phoneNo);
+		buff.append(":");
+		buff.append(providerName);
+		buff.append(":");
+		SMSBridgeConfig config = this.bridgeConfigurations.iterator().next();
+		buff.append(config.getConfigName());
+		buff.append(":");
+		buff.append(config.getConfigValue());
 		return buff.toString();
 	}
 }
