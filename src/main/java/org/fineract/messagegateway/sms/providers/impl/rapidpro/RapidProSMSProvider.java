@@ -94,16 +94,6 @@ public class RapidProSMSProvider extends SMSProvider {
 
     }
 
-    private OkHttpClient getRestClient(final SMSBridge smsBridge) {
-        String authorizationKey = encodeBase64(smsBridge);
-        OkHttpClient client = this.restClients.get(authorizationKey);
-        if (client == null) {
-            client = this.get(smsBridge);
-            this.restClients.put(authorizationKey, client);
-        }
-        return client;
-    }
-
     OkHttpClient get(final SMSBridge smsBridgeConfig) {
         logger.debug("Creating a new Twilio Client ....");
 
