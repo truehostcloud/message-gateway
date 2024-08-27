@@ -20,6 +20,8 @@ package org.fineract.messagegateway.sms.domain;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -85,10 +87,12 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerKey = providerKey;
 		this.countryCode = countryCode;
 		this.providerDescription = providerDescription;
-		this.value = providerName + ":" + phoneNo;
 	}
 
-	private String value;
+	@JsonProperty("value")
+	public String getValue() {
+		return providerName + " - " + phoneNo;
+	}
 
 	public void setTenantId(final Long tenantId) {
 		this.tenantId = tenantId;
