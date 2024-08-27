@@ -64,12 +64,11 @@ dependencies {
     implementation('mysql:mysql-connector-java:8.0.26')
     implementation('com.infobip:infobip-api-java-client:1.1.0')
     implementation('com.telerivet:TelerivetAPIClient:1.4.6')
-    implementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0')
-    implementation('org.json:json:20210307')
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0'
+    implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11") {
-        exclude group: 'com.google.code.gson'
-    }
+    implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11")
+    implementation("com.google.code.gson:gson:2.8.6")
 }
 
 wrapper {
