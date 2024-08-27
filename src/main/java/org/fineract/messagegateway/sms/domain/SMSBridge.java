@@ -70,17 +70,11 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bridge", orphanRemoval = true, fetch = FetchType.EAGER)
 	public Collection<SMSBridgeConfig> bridgeConfigurations = new ArrayList<>();
 
-	private String value;
-
 	public SMSBridge() {
 	}
 
 	public SMSBridge(final Long tenantId) {
 		this.tenantId = tenantId;
-	}
-
-	public String getProviderNameAndPhoneNo() {
-		return this.providerName + ":" + this.phoneNo;
 	}
 
 	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey,
@@ -91,8 +85,10 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerKey = providerKey;
 		this.countryCode = countryCode;
 		this.providerDescription = providerDescription;
-		this.value = getProviderNameAndPhoneNo();
+		this.value = providerName + ":" + phoneNo;
 	}
+
+	private String value;
 
 	public void setTenantId(final Long tenantId) {
 		this.tenantId = tenantId;
@@ -100,14 +96,6 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	public Long getTenantId() {
 		return tenantId;
-	}
-
-	public void setValue(final String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return value;
 	}
 
 	public void setPhoneNo(final String phoneNo) {
