@@ -10,6 +10,7 @@ buildscript {
     
 }
 
+
 plugins {
     id 'org.springframework.boot' version '2.5.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -69,7 +70,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0'
     implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11")
+    implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.6")
 }
 
 wrapper {
