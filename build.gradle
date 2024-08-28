@@ -58,7 +58,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core:6.4.0")
     implementation('org.apache.velocity:velocity:1.7')
     implementation('com.squareup.okhttp3:okhttp:4.9.3')
-    implementation("com.squareup.okio:okio:3.9.0")
     implementation('com.squareup.okhttp3:okhttp-urlconnection:4.9.3')
     implementation('com.squareup.retrofit2:retrofit:2.9.0')
     implementation('com.squareup.retrofit2:converter-gson:2.9.0')
@@ -70,7 +69,6 @@ dependencies {
     implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11")
-    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 wrapper {
