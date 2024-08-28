@@ -45,7 +45,7 @@ public class CallbackEventListner implements ApplicationListener<CallbackEvent> 
 
     String post(String url, String json) throws IOException {
         logger.info("In post of callback event listener");
-        RequestBody body = RequestBody.create(String.valueOf(json), JSON);
+        RequestBody body = RequestBody.create(JSON, String.valueOf(json));
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
