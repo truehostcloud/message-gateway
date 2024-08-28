@@ -27,7 +27,7 @@ public class AfricastalkingMessageProvider extends SMSProvider {
             String mobile = smsBridgeConfig.getCountryCode() + message.getMobileNumber();
             List<Recipient> response = sms.send(message.getMessage(), smsBridgeConfig.getPhoneNo(),
                     new String[] { mobile }, true);
-            logger.info("SMS sent successfully. Response: {}", response);
+            logger.info("SMS sent to {} successfully. Response: {}", mobile, response);
             for (Recipient recipient : response) {
                 logger.info("Recipient Number: {}, Recipient Status: {}, Recipient Cost: {}, Recipient Message ID: {}",
                         recipient.number, recipient.status, recipient.cost, recipient.messageId);
