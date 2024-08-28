@@ -69,7 +69,7 @@ dependencies {
     implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11")
-    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 wrapper {
