@@ -57,6 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.2")
     implementation("org.flywaydb:flyway-core:6.4.0")
     implementation('org.apache.velocity:velocity:1.7')
+    implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.squareup.okhttp3:okhttp:3.14.2")
     implementation("com.squareup.okhttp3:okhttp-urlconnection:3.14.2")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
@@ -69,7 +70,6 @@ dependencies {
     implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("com.github.AfricasTalkingLtd.africastalking-java:core:3.4.11")
-    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 wrapper {
