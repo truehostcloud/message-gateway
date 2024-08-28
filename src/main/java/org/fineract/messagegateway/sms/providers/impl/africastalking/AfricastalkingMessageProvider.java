@@ -1,5 +1,6 @@
 package org.fineract.messagegateway.sms.providers.impl.africastalking;
 
+import org.apache.commons.lang.ObjectUtils.Null;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
@@ -24,10 +25,13 @@ public class AfricastalkingMessageProvider extends SMSProvider {
             AfricasTalking.initialize(smsBridgeConfig.getConfigValue("username"),
                     smsBridgeConfig.getConfigValue("apiKey"));
             SmsService sms = AfricasTalking.getService(AfricasTalking.SERVICE_SMS);
+            String from = smsBridgeConfig.getPhoneNo();
+            if (from == "AFRICASTKNG") {
+                from = null;
+            }
             String mobile = smsBridgeConfig.getCountryCode() + message.getMobileNumber();
-            List<Recipient> response = sms.send(message.getMessage(), smsBridgeConfig.getPhoneNo(),
+            List<Recipient> response = sms.send(message.getMessage(), from,
                     new String[] { mobile }, true);
-            logger.info("SMS sent to {} successfully. Response: {}", mobile, response);
             for (Recipient recipient : response) {
                 logger.info("Recipient Number: {}, Recipient Status: {}, Recipient Cost: {}, Recipient Message ID: {}",
                         recipient.number, recipient.status, recipient.cost, recipient.messageId);
