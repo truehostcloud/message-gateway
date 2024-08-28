@@ -18,7 +18,11 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.rapidpro;
 
-import com.squareup.okhttp.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.Date;
@@ -69,9 +73,9 @@ public class RapidProSMSProvider extends SMSProvider {
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(
-                    mediaType,
                     "{\"urns\": [\"tel:" + message.getMobileNumber() + "\"],\"contacts\": [],\"text\": \""
-                            + message.getMessage() + "\"}");
+                            + message.getMessage() + "\"}",
+                    mediaType);
             Request request = new Request.Builder()
                     .url(url)
                     .method("POST", body)

@@ -1,7 +1,13 @@
 package org.fineract.messagegateway.sms.util;
 
 import com.google.gson.Gson;
-import com.squareup.okhttp.*;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.service.SMSMessageService;
@@ -39,7 +45,7 @@ public class CallbackEventListner implements ApplicationListener<CallbackEvent> 
 
     String post(String url, String json) throws IOException {
         logger.info("In post of callback event listener");
-        RequestBody body = RequestBody.create(JSON, String.valueOf(json));
+        RequestBody body = RequestBody.create(String.valueOf(json), JSON);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
