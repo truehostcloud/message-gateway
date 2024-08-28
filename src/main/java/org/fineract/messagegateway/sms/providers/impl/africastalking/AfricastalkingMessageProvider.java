@@ -26,6 +26,7 @@ public class AfricastalkingMessageProvider extends SMSProvider {
                     smsBridgeConfig.getConfigValue("apiKey"));
             SmsService sms = AfricasTalking.getService(AfricasTalking.SERVICE_SMS);
             String from = smsBridgeConfig.getPhoneNo();
+            logger.info("Sending SMS from: {}", from);
             if (from == "AFRICASTKNG") {
                 from = null;
             }
