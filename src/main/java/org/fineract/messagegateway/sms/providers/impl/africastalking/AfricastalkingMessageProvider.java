@@ -1,6 +1,5 @@
 package org.fineract.messagegateway.sms.providers.impl.africastalking;
 
-import org.apache.commons.lang.ObjectUtils.Null;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
@@ -9,11 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.africastalking.SmsService;
-import com.africastalking.sms.Recipient;
-import com.africastalking.AfricasTalking;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-import java.util.List;
+import java.io.IOException;
 
 @Service(value = "Africastalking")
 public class AfricastalkingMessageProvider extends SMSProvider {
@@ -22,22 +22,48 @@ public class AfricastalkingMessageProvider extends SMSProvider {
     @Override
     public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
         try {
-            AfricasTalking.initialize(smsBridgeConfig.getConfigValue("username"),
-                    smsBridgeConfig.getConfigValue("apiKey"));
-            SmsService sms = AfricasTalking.getService(AfricasTalking.SERVICE_SMS);
+            OkHttpClient client = new OkHttpClient();
             String from = smsBridgeConfig.getPhoneNo();
             logger.info("Sending SMS from: {}", from);
-            if (from == "AFRICASTKNG") {
+            if (from.equals("AFRICASTKNG")) {
                 from = null;
             }
-            String mobile = smsBridgeConfig.getCountryCode() + message.getMobileNumber();
-            List<Recipient> response = sms.send(message.getMessage(), from,
-                    new String[] { mobile }, true);
-            for (Recipient recipient : response) {
-                logger.info("Recipient Number: {}, Recipient Status: {}, Recipient Cost: {}, Recipient Message ID: {}",
-                        recipient.number, recipient.status, recipient.cost, recipient.messageId);
+            String username = smsBridgeConfig.getConfigValue("username");
+            String url = "https://api.africastalking.com/version1/messaging";
+            if (username.equals("sandbox")) {
+                url = "https://api.sandbox.africastalking.com/version1/messaging";
             }
-        } catch (Exception e) {
+            String mobile = smsBridgeConfig.getCountryCode() + message.getMobileNumber();
+            FormBody.Builder requestBodyBuilder = new FormBody.Builder()
+                    .add("username", username)
+                    .add("to", mobile)
+                    .add("message", message.getMessage())
+                    .add("bulkSMSMode", "1")
+                    .add("enqueue", "0");
+
+            if (from != null) {
+                requestBodyBuilder.add("from", from);
+            }
+
+            FormBody requestBody = requestBodyBuilder.build();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("apiKey", smsBridgeConfig.getConfigValue("apiKey"))
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .addHeader("Accept", "application/json")
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                logger.info("SMS sent successfully. Response: {}", responseBody);
+            } else {
+                logger.error("Failed to send SMS. Response code: {}, Response body: {}", response.code(),
+                        response.body().string());
+                throw new MessageGatewayException("Failed to send SMS. Please check the logs for more details.");
+            }
+        } catch (IOException e) {
             logger.error("An error occurred while sending the SMS: {}", e.getMessage(), e);
             throw new MessageGatewayException("Failed to send SMS. Please check the logs for more details.");
         }
