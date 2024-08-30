@@ -89,6 +89,7 @@ public class SmsApiResource {
 		Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey,
 				internalIds);
 		logger.info("From SMS API Resource, successfully fetched the message status");
+		Collection<DeliveryStatusData> messageDeliveryStatus = new ArrayList<>();
 		for (DeliveryStatusData deliveryStatusData : deliveryStatus) {
 			if (deliveryStatusData.getDeliveryStatus() != 300) {
 				logger.info("Delivery status is still pending, fetching message status manually ");
@@ -106,15 +107,15 @@ public class SmsApiResource {
 					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId());
 					Collection<Long> id = new ArrayList<Long>();
 					id.add(Long.valueOf(deliveryStatusData.getId()));
-					Collection<DeliveryStatusData> messageDeliveryStatus = this.smsMessageService
-							.getDeliveryStatus(tenantId, appKey, id);
-					deliveryStatus = messageDeliveryStatus;
+					Collection<DeliveryStatusData> statusData = this.smsMessageService.getDeliveryStatus(tenantId,
+							appKey, id);
+					messageDeliveryStatus.addAll(statusData);
 				} catch (ProviderNotDefinedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
+		return new ResponseEntity<>(messageDeliveryStatus, HttpStatus.OK);
 
 	}
 }

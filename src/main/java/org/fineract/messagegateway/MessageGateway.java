@@ -28,7 +28,7 @@ public class MessageGateway {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageGateway.class);
     @Value("${application.version}")
-    private static String version ;
+    private static String version;
 
     public MessageGateway() {
         super();
@@ -36,6 +36,7 @@ public class MessageGateway {
 
     public static void main(String[] args) {
         logger.info("Version :" + version);
+        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         SpringApplication.run(MessageGatewayConfiguration.class, args);
 
     }
