@@ -4,6 +4,9 @@ import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,27 @@ public class AfricastalkingMessageProvider extends SMSProvider {
             if (response.isSuccessful()) {
                 String responseBody = response.body().string();
                 logger.info("SMS sent successfully. Response: {}", responseBody);
+
+                // Parse the response body
+                JSONObject responseJson = new JSONObject(responseBody);
+                JSONObject smsMessageData = responseJson.getJSONObject("SMSMessageData");
+                JSONArray recipients = smsMessageData.getJSONArray("Recipients");
+
+                if (recipients.length() > 0) {
+                    JSONObject recipient = recipients.getJSONObject(0);
+
+                    // Update the message with external ID and delivery status
+                    String messageId = recipient.getString("messageId");
+                    int statusCode = recipient.getInt("statusCode");
+                    SmsMessageStatusType deliveryStatus = AfricastalkingStatus.smsStatus(statusCode);
+
+                    message.setExternalId(messageId);
+                    message.setDeliveryStatus(deliveryStatus.getValue());
+                } else {
+                    String errorMessage = smsMessageData.getString("Message");
+                    logger.error("Failed to send SMS. Error message: {}", errorMessage);
+                    throw new MessageGatewayException("Failed to send SMS. Error message: " + errorMessage);
+                }
             } else {
                 logger.error("Failed to send SMS. Response code: {}, Response body: {}", response.code(),
                         response.body().string());
