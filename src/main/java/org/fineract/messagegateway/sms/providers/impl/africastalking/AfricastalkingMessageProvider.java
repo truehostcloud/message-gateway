@@ -95,6 +95,5 @@ public class AfricastalkingMessageProvider extends SMSProvider {
 
     @Override
     public void updateStatusByMessageId(SMSBridge smsBridgeConfig, String messageId) throws MessageGatewayException {
-        throw new UnsupportedOperationException("updateStatusByMessageId is not yet implemented for Africastalking");
     }
 }
