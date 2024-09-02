@@ -30,7 +30,6 @@ import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.exception.ProviderNotDefinedException;
 import org.fineract.messagegateway.sms.exception.SMSBridgeNotFoundException;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
-import org.fineract.messagegateway.sms.providers.impl.infobip.InfoBipApiResource;
 import org.fineract.messagegateway.sms.providers.impl.telerivet.TelerivetMessageProvider;
 import org.fineract.messagegateway.sms.repository.SMSBridgeRepository;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
@@ -51,9 +50,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sms")
 public class SmsApiResource {
 
-	//This class sends TRANSACTIONAL & PROMOTIONAL SMS
+	// This class sends TRANSACTIONAL & PROMOTIONAL SMS
 
-	private SMSMessageService smsMessageService ;
+	private SMSMessageService smsMessageService;
 
 	private static final Logger logger = LoggerFactory.getLogger(SmsApiResource.class);
 
@@ -61,32 +60,37 @@ public class SmsApiResource {
 	private TelerivetMessageProvider telerivetMessageProvider;
 
 	@Autowired
-	private  SMSBridgeRepository smsBridgeRepository;
+	private SMSBridgeRepository smsBridgeRepository;
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	@Autowired
-    public SmsApiResource(final SMSMessageService smsMessageService) {
-		this.smsMessageService = smsMessageService ;
-    }
+	public SmsApiResource(final SMSMessageService smsMessageService) {
+		this.smsMessageService = smsMessageService;
+	}
 
-    @RequestMapping(method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Void> sendShortMessages(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
-    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
-    		@RequestBody final List<SMSMessage> payload) {
-		logger.info("Payload "+ payload.get(0).getMessage());
-    	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
-       return new ResponseEntity<>(HttpStatus.ACCEPTED);
-    }
+	@RequestMapping(method = RequestMethod.POST, consumes = { "application/json" }, produces = { "application/json" })
+	public ResponseEntity<Void> sendShortMessages(
+			@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+			@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
+			@RequestBody final List<SMSMessage> payload) {
+		logger.info("Payload " + payload.get(0).getMessage());
+		this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
 
-    @RequestMapping(value = "/report", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
-    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
-    		@RequestBody final Collection<Long> internalIds) throws MessageGatewayException {
-    	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, internalIds) ;
+	@RequestMapping(value = "/report", method = RequestMethod.POST, consumes = { "application/json" }, produces = {
+			"application/json" })
+	public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(
+			@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+			@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
+			@RequestBody final Collection<Long> internalIds) throws MessageGatewayException {
+		Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey,
+				internalIds);
 		logger.info("From SMS API Resource, successfully fetched the message status");
-		for(DeliveryStatusData deliveryStatusData :  deliveryStatus) {
+		Collection<DeliveryStatusData> messageDeliveryStatus = new ArrayList<>();
+		for (DeliveryStatusData deliveryStatusData : deliveryStatus) {
 			if (deliveryStatusData.getDeliveryStatus() != 300) {
 				logger.info("Delivery status is still pending, fetching message status manually ");
 				SMSBridge bridge = smsBridgeRepository.findByIdAndTenantId(deliveryStatusData.getBridgeId(),
@@ -103,14 +107,15 @@ public class SmsApiResource {
 					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId());
 					Collection<Long> id = new ArrayList<Long>();
 					id.add(Long.valueOf(deliveryStatusData.getId()));
-					Collection<DeliveryStatusData> messageDeliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, id);
-					deliveryStatus = messageDeliveryStatus;
+					Collection<DeliveryStatusData> statusData = this.smsMessageService.getDeliveryStatus(tenantId,
+							appKey, id);
+					messageDeliveryStatus.addAll(statusData);
 				} catch (ProviderNotDefinedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
+		return new ResponseEntity<>(messageDeliveryStatus, HttpStatus.OK);
 
 	}
 }

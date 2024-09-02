@@ -18,7 +18,11 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.rapidpro;
 
-import com.squareup.okhttp.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,65 +43,66 @@ import org.springframework.stereotype.Service;
 @Service(value = "RapidPro")
 public class RapidProSMSProvider extends SMSProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            RapidProSMSProvider.class);
+        private static final Logger logger = LoggerFactory.getLogger(
+                        RapidProSMSProvider.class);
 
-    private HashMap<String, OkHttpClient> restClients = new HashMap<>();
+        private HashMap<String, OkHttpClient> restClients = new HashMap<>();
 
-    private final String callBackUrl;
+        private final String callBackUrl;
 
-    @Autowired
-    public RapidProSMSProvider(final HostConfig hostConfig) {
-        callBackUrl = String.format(
-                "%s://%s:%d/rapidprosms/report/",
-                hostConfig.getProtocol(),
-                hostConfig.getHostName(),
-                hostConfig.getPort());
-        logger.info("Registering call back to rapidprosms:" + callBackUrl);
-    }
-
-    @Override
-    public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message)
-            throws MessageGatewayException {
-        logger.info("Reached RapidPro Provider...");
-        String url = smsBridgeConfig.getConfigValue(
-                MessageGatewayConstants.PROVIDER_URL) + "/broadcasts.json";
-        String providerAuthToken = smsBridgeConfig.getConfigValue(
-                MessageGatewayConstants.PROVIDER_AUTH_TOKEN);
-        logger.info("URL.....{}", url);
-        try {
-            OkHttpClient client = new OkHttpClient();
-            MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(
-                    mediaType,
-                    "{\"urns\": [\"tel:" + message.getMobileNumber() + "\"],\"contacts\": [],\"text\": \""
-                            + message.getMessage() + "\"}");
-            Request request = new Request.Builder()
-                    .url(url)
-                    .method("POST", body)
-                    .addHeader("Authorization", providerAuthToken)
-                    .addHeader("Content-Type", "application/json")
-                    .build();
-            Response response = client.newCall(request).execute();
-            String responseBody = response.body().string();
-            logger.info(responseBody);
-            message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
-            message.setDeliveredOnDate(new Date());
-            message.setResponse(responseBody);
-        } catch (IOException e) {
-            throw new MessageGatewayException(e.getMessage());
+        @Autowired
+        public RapidProSMSProvider(final HostConfig hostConfig) {
+                callBackUrl = String.format(
+                                "%s://%s:%d/rapidprosms/report/",
+                                hostConfig.getProtocol(),
+                                hostConfig.getHostName(),
+                                hostConfig.getPort());
+                logger.info("Registering call back to rapidprosms:" + callBackUrl);
         }
-    }
 
-    @Override
-    public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
+        @Override
+        public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message)
+                        throws MessageGatewayException {
+                logger.info("Reached RapidPro Provider...");
+                String url = smsBridgeConfig.getConfigValue(
+                                MessageGatewayConstants.PROVIDER_URL) + "/broadcasts.json";
+                String providerAuthToken = smsBridgeConfig.getConfigValue(
+                                MessageGatewayConstants.PROVIDER_AUTH_TOKEN);
+                logger.info("URL.....{}", url);
+                try {
+                        OkHttpClient client = new OkHttpClient();
+                        MediaType mediaType = MediaType.parse("application/json");
+                        RequestBody body = RequestBody.create(
+                                        mediaType,
+                                        "{\"urns\": [\"tel:" + message.getMobileNumber()
+                                                        + "\"],\"contacts\": [],\"text\": \""
+                                                        + message.getMessage() + "\"}");
+                        Request request = new Request.Builder()
+                                        .url(url)
+                                        .method("POST", body)
+                                        .addHeader("Authorization", providerAuthToken)
+                                        .addHeader("Content-Type", "application/json")
+                                        .build();
+                        Response response = client.newCall(request).execute();
+                        String responseBody = response.body().string();
+                        logger.info(responseBody);
+                        message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
+                        message.setDeliveredOnDate(new Date());
+                        message.setResponse(responseBody);
+                } catch (IOException e) {
+                        throw new MessageGatewayException(e.getMessage());
+                }
+        }
 
-    }
+        @Override
+        public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
 
-    OkHttpClient get(final SMSBridge smsBridgeConfig) {
-        logger.debug("Creating a new Twilio Client ....");
+        }
 
-        final OkHttpClient client = new OkHttpClient();
-        return client;
-    }
+        OkHttpClient get(final SMSBridge smsBridgeConfig) {
+                logger.debug("Creating a new Twilio Client ....");
+
+                final OkHttpClient client = new OkHttpClient();
+                return client;
+        }
 }

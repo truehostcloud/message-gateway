@@ -1,7 +1,13 @@
 package org.fineract.messagegateway.sms.util;
 
 import com.google.gson.Gson;
-import com.squareup.okhttp.*;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.service.SMSMessageService;

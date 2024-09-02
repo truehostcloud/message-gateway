@@ -33,14 +33,14 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableAutoConfiguration(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class })
 @EnableJpaRepositories(basePackages = {
         "org.fineract.messagegateway.sms.repository",
         "org.fineract.messagegateway.tenants.repository"
-		
+
 })
 @EntityScan(basePackageClasses = {
-		AbstractPersistableCustom.class,
+        AbstractPersistableCustom.class,
         SMSBridge.class,
         SMSBridgeConfig.class,
         SMSMessage.class,
@@ -61,4 +61,5 @@ public class MessageGatewayConfiguration {
         multicaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
         return multicaster;
     }
+
 }
