@@ -153,6 +153,7 @@ public class SmsBridgeSerializer {
                  baseDataValidator.reset().parameter(SmsConstants.configname_paramname).value(configName).notBlank();
                  baseDataValidator.reset().parameter(SmsConstants.configvalue_paramname).value(configValue).notBlank();
                  final SMSBridgeConfig config = new SMSBridgeConfig(configName, configValue) ;
+                 config.setSMSBridge(bridge);
                  configs.add(config) ;
          }
 		 bridge.setSmsBridgeConfig(configs) ;
