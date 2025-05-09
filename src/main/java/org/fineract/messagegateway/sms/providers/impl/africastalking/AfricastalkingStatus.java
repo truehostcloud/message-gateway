@@ -7,7 +7,7 @@ public class AfricastalkingStatus {
         SmsMessageStatusType smsStatus = SmsMessageStatusType.PENDING;
         switch (AfricastalkingStatus) {
             case 100:
-                smsStatus = SmsMessageStatusType.PENDING;
+                smsStatus = SmsMessageStatusType.SENT;  
                 break;
             case 101:
                 smsStatus = SmsMessageStatusType.SENT;
