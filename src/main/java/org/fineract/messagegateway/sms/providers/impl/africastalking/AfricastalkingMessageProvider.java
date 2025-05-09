@@ -98,8 +98,8 @@ public class AfricastalkingMessageProvider extends SMSProvider {
             JSONObject responseJson = new JSONObject(responseString);
             JSONObject smsMessageData = responseJson.getJSONObject("SMSMessageData");
             JSONArray recipients = smsMessageData.getJSONArray("Recipients");
-
-            if (!recipients.isEmpty()) {
+            
+            if (recipients.length() > 0) {
                 JSONObject recipient = recipients.getJSONObject(0);
 
                 // Update the message with external ID and delivery status
