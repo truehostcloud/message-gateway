@@ -58,8 +58,10 @@ public class AfricastalkingMessageProvider extends SMSProvider {
         Request request = new Request.Builder().url(url).addHeader("apiKey", smsBridgeConfig.getConfigValue("apiKey")).addHeader("Content-Type", "application/x-www-form-urlencoded").addHeader("Accept", "application/json").post(requestBody).build();
 
         logger.info("Request URL: {}", url);
-        logger.info("Request Headers: apiKey: {}, Content-Type: application/x-www-form-urlencoded, Accept: application/json", smsBridgeConfig.getConfigValue("apiKey"));
-        logger.info("Request Payload: username={}, to={}, message={}, bulkSMSMode=1, enqueue=0{}", smsBridgeConfig.getConfigValue("username"), mobile, message.getMessage(), from != null ? ", from=" + from : "");
+        logger.info("Request Headers: Content-Type: application/x-www-form-urlencoded, Accept: application/json");
+        logger.info("Request Payload: username={}, to={}, message={}, bulkSMSMode=1, enqueue=0{}", 
+            smsBridgeConfig.getConfigValue("username"), mobile, message.getMessage(), 
+            from != null ? ", from=" + from : "");
 
         processResponse(client.newCall(request).execute(), message);
     }
