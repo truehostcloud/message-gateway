@@ -167,7 +167,14 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	public void setSmsBridgeConfig(final Collection<SMSBridgeConfig> bridgeConfigurations) {
 		this.bridgeConfigurations.clear();
-		this.bridgeConfigurations = bridgeConfigurations;
+		
+		// Add new configurations
+		if (bridgeConfigurations != null) {
+			for (SMSBridgeConfig config : bridgeConfigurations) {
+				config.setSMSBridge(this);
+				this.bridgeConfigurations.add(config);
+			}
+		}
 	}
 
 	public String generateApiKey() {
