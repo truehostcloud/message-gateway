@@ -59,9 +59,9 @@ public class AfricastalkingMessageProvider extends SMSProvider {
 
         logger.info("Request URL: {}", url);
         logger.info("Request Headers: Content-Type: application/x-www-form-urlencoded, Accept: application/json");
-        logger.info("Request Payload: username={}, to={}, message={}, bulkSMSMode=1, enqueue=0{}", 
-            smsBridgeConfig.getConfigValue("username"), mobile, message.getMessage(), 
-            from != null ? ", from=" + from : "");
+        logger.info("Request Payload: username={}, to={}, message={}, bulkSMSMode=1, enqueue=0{}",
+                smsBridgeConfig.getConfigValue("username"), mobile, message.getMessage(),
+                from != null ? ", from=" + from : "");
 
         processResponse(client.newCall(request).execute(), message);
     }
@@ -94,27 +94,32 @@ public class AfricastalkingMessageProvider extends SMSProvider {
         if (response.isSuccessful()) {
             logger.info("SMS sent successfully. Response: {}", responseString);
 
-            // Parse the response body
             JSONObject responseJson = new JSONObject(responseString);
             JSONObject smsMessageData = responseJson.getJSONObject("SMSMessageData");
-            JSONArray recipients = smsMessageData.getJSONArray("Recipients");
-            
-            if (recipients.length() > 0) {
-                JSONObject recipient = recipients.getJSONObject(0);
 
-                // Update the message with external ID and delivery status
-                String messageId = recipient.getString("messageId");
-                int statusCode = recipient.getInt("statusCode");
-                logger.info("Africa's Talking API response - MessageId: {}, StatusCode: {}", messageId, statusCode);
-                SmsMessageStatusType deliveryStatus = AfricastalkingStatus.smsStatus(statusCode);
-                logger.info("Mapped delivery status: {}", deliveryStatus);
+            if (smsMessageData.has("Recipients") && !smsMessageData.isNull("Recipients")) {
+                JSONArray recipients = smsMessageData.getJSONArray("Recipients");
 
-                message.setExternalId(messageId);
-                message.setDeliveryStatus(deliveryStatus.getValue());
+                if (!recipients.isEmpty()) {
+                    JSONObject recipient = recipients.getJSONObject(0);
+
+                    String messageId = recipient.getString("messageId");
+                    int statusCode = recipient.getInt("statusCode");
+                    logger.info("Africa's Talking API response - MessageId: {}, StatusCode: {}", messageId, statusCode);
+                    SmsMessageStatusType deliveryStatus = AfricastalkingStatus.smsStatus(statusCode);
+                    logger.info("Mapped delivery status: {}", deliveryStatus);
+
+                    message.setExternalId(messageId);
+                    message.setDeliveryStatus(deliveryStatus.getValue());
+                } else {
+                    String errorMessage = smsMessageData.getString("Message");
+                    logger.error("Failed to send SMS. Empty recipients array. Error message: {}", errorMessage);
+                    throw new MessageGatewayException("Failed to send SMS. Empty recipients array. Error message: " + errorMessage);
+                }
             } else {
-                String errorMessage = smsMessageData.getString("Message");
-                logger.error("Failed to send SMS. Error message: {}", errorMessage);
-                throw new MessageGatewayException("Failed to send SMS. Error message: " + errorMessage);
+                String errorMessage = smsMessageData.has("Message") ? smsMessageData.getString("Message") : "No Recipients array in response";
+                logger.error("Failed to send SMS. Missing Recipients data. Error message: {}", errorMessage);
+                throw new MessageGatewayException("Failed to send SMS. Missing Recipients data. Error message: " + errorMessage);
             }
         } else {
             logger.error("Failed to send SMS. Response code: {}, Response body: {}", response.code(), responseString);
